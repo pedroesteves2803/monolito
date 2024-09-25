@@ -1,5 +1,6 @@
 import Id from "../../../@shared/domain/value-object/id.value-object";
 import Product from "../../domain/product.entity";
+import FindProductUseCase from "./find-product.usecase";
 
 const product = new Product({
     id: new Id("1"),
@@ -29,7 +30,7 @@ describe("find a product usecase unit test", () => {
         const result = await usecase.execute(input);
 
         expect(productRepository.find).toHaveBeenCalled();
-        expect(result.id.id).toBe("1");
+        expect(result.id).toBe("1");
         expect(result.name).toBe("Product 1");
         expect(result.description).toBe("Product description");
         expect(result.salesPrice).toBe(100);
