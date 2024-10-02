@@ -1,8 +1,12 @@
 import { Sequelize } from "sequelize-typescript";
 import InvoiceFacadeFactory from "../factory/facade.factory";
-import { InvoiceModel } from "../repository/invoice.model";
-import { ProductModel } from "../repository/product.model";
+import InvoiceRepository from "../repository/invoice.repository";
+import FindInvoiceUseCase from "../usecase/find-invoice/find-invoice.usecase";
+import GenerateInvoiceUseCase from "../usecase/generate-invoice/generate-invoice.usecase";
+import InvoiceFacade from "./invoice.facade";
 import { GenerateInvoiceFacadeInputDTO } from "./invoice.facade.interface";
+import ProductModel from "../repository/product.model";
+import InvoiceModel from "../repository/invoice.model";
 
 describe("InvoiceFacade test", () => {
   let sequelize: Sequelize;
