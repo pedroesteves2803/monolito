@@ -1,33 +1,44 @@
-import { AddClientInputDto, AddClientOutputDto } from './add-client.usecase.dto';
+import Id from "../../../@shared/domain/value-object/id.value-object";
+import UseCaseInterface from "../../../@shared/usecase/use-case.interface";
+import Client from "../../domain/client.entity";
 import ClientGateway from "../../gateway/client.gateway";
-import Id from '../../../@shared/domain/value-object/id.value-object';
-import Client from '../../domain/client.entity';
+import { InputAddClientUseCaseDto, OutputAddClientUseCaseDto } from "./add-client.usecase.dto";
 
-export default class AddClientUseCase {
+export default class AddClientUseCase implements UseCaseInterface {
+
     private _clientRepository: ClientGateway;
 
     constructor(clientRepository: ClientGateway) {
         this._clientRepository = clientRepository;
     }
 
-    async execute(input: AddClientInputDto): Promise<AddClientOutputDto> { 
-        const props = {
-            id: new Id(input.id) || new Id(input.id),
+    async execute(input: InputAddClientUseCaseDto): Promise<OutputAddClientUseCaseDto> {
+        const client = new Client({
+            id: new Id(input.id) || new Id(),
             name: input.name,
             email: input.email,
-            address: input.address,
-        };
-
-        const client = new Client(props);
-        this._clientRepository.add(client);
-
+            document: input.document,
+            street: input.street,
+            number: input.number,
+            complement: input.complement,
+            city: input.city,
+            state: input.state,
+            zipCode: input.zipCode
+        });
+        await this._clientRepository.add(client);
         return {
             id: client.id.id,
             name: client.name,
             email: client.email,
-            address: client.address,
+            document: input.document,
+            street: input.street,
+            number: input.number,
+            complement: input.complement,
+            city: input.city,
+            state: input.state,
+            zipCode: input.zipCode,
             createdAt: client.createdAt,
-            updatedAt: client.updatedAt,
+            updatedAt: client.updatedAt
         };
     }
 }

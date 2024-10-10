@@ -1,12 +1,7 @@
 import { Sequelize } from "sequelize-typescript";
-import InvoiceFacadeFactory from "../factory/facade.factory";
-import InvoiceRepository from "../repository/invoice.repository";
-import FindInvoiceUseCase from "../usecase/find-invoice/find-invoice.usecase";
-import GenerateInvoiceUseCase from "../usecase/generate-invoice/generate-invoice.usecase";
-import InvoiceFacade from "./invoice.facade";
-import { GenerateInvoiceFacadeInputDTO } from "./invoice.facade.interface";
-import ProductModel from "../repository/product.model";
-import InvoiceModel from "../repository/invoice.model";
+import { Address } from "../domain/address.value-object";
+import { InvoiceFacadeFactory } from "../factory/facade.factory";
+import { InvoiceModel } from "../repository/invoice.model";
 
 describe("InvoiceFacade test", () => {
   let sequelize: Sequelize;
@@ -19,7 +14,7 @@ describe("InvoiceFacade test", () => {
       sync: { force: true },
     });
 
-    await sequelize.addModels([InvoiceModel, ProductModel]);
+    sequelize.addModels([InvoiceModel]);
     await sequelize.sync();
   });
 
@@ -27,56 +22,103 @@ describe("InvoiceFacade test", () => {
     await sequelize.close();
   });
 
-  it("should generate and find a invoice", async () => {
-    const facade = InvoiceFacadeFactory.create();
+  it("should generate an invoice", async () => {
+    const invoiceFacade = InvoiceFacadeFactory.create();
 
-    const input: GenerateInvoiceFacadeInputDTO = {
-      id: "1",
-      name: "Robson Silva",
-      document: "132.456.789-09",
-      street: "Rua Janeiro",
-      number: "15",
-      complement: "complemento",
-      city: "Jandira",
-      state: "SP",
-      zipCode: "06600100",
+    const input = {
+      name: "Invoice 1",
+      document: "Document 1",
+      street: "Street",
+      number: "123",
+      complement: "Complement",
+      city: "City",
+      state: "State",
+      zipCode: "122343404",
       items: [
         {
           id: "1",
           name: "Product 1",
-          price: 7.5,
+          price: 100,
         },
         {
           id: "2",
           name: "Product 2",
-          price: 7.5,
+          price: 200,
         },
       ],
     };
 
-    await facade.generate(input);
-    const result = await facade.find({ id: "1" });
-    // const result = await InvoiceModel.findOne({ where: { id: "1" } });
-    // const items = await ProductModel.findAll({ where: { invoiceId: "1" } });
+    const invoiceGenerated = await invoiceFacade.generateInvoice(input);
+    const invoiceOnDB = await InvoiceModel.findOne({
+      where: { id: invoiceGenerated.id },
+    });
 
-    expect(result.id).toBeDefined();
-    expect(input.document).toBe(result.document);
-    expect(input.name).toBe(result.name);
-    expect(input.items.map((p) => p.price).reduce((p, c) => p + c)).toBe(
-      result.total
+    expect(invoiceGenerated.id).toBeDefined();
+    expect(invoiceOnDB.id).toBeDefined();
+    expect(invoiceGenerated.name).toBe(input.name);
+    expect(invoiceGenerated.document).toEqual(input.document);
+    expect(invoiceGenerated.items).toEqual(input.items);
+    expect(invoiceGenerated.total).toEqual(300);
+
+    expect(invoiceGenerated.street).toEqual(input.street);
+    expect(invoiceGenerated.number).toEqual(input.number);
+    expect(invoiceGenerated.complement).toEqual(input.complement);
+    expect(invoiceGenerated.city).toEqual(input.city);
+    expect(invoiceGenerated.state).toEqual(input.state);
+    expect(invoiceGenerated.zipCode).toEqual(input.zipCode);
+  });
+
+  it("should find an invoice", async () => {
+    const invoiceFacade = InvoiceFacadeFactory.create();
+
+    const invoiceCreated = await InvoiceModel.create({
+      id: "321",
+      name: "Invoice 2",
+      document: "Document 2",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      items: [
+        {
+          id: "1",
+          name: "Product 1",
+          price: 100,
+        },
+        {
+          id: "2",
+          name: "Product 2",
+          price: 200,
+        },
+      ],
+      addressStreet: "street",
+      addressNumber: "number",
+      addressComplement: "complement",
+      addressCity: "city",
+      addressState: "state",
+      addressZipCode: "zipCode",
+    });
+
+    const result = await invoiceFacade.findInvoice({ id: "321" });
+
+    expect(result.id).toEqual(invoiceCreated.id);
+    expect(result.name).toEqual(invoiceCreated.name);
+    expect(result.document).toEqual(invoiceCreated.document);
+
+    expect(result.createdAt.toString()).toEqual(
+      invoiceCreated.createdAt.toString()
     );
 
-    expect(input.street).toStrictEqual(result.address.street);
-    expect(input.number).toStrictEqual(result.address.number);
-    expect(input.complement).toStrictEqual(result.address.complement);
-    expect(input.city).toStrictEqual(result.address.city);
-    expect(input.state).toStrictEqual(result.address.state);
-    expect(input.zipCode).toStrictEqual(result.address.zipCode);
+    expect(result.total).toEqual(300);
+    expect(result.items.length).toEqual(2);
 
-    for (let i = 0; i < result.items.length; i++) {
-      expect(input.items[i].id).toStrictEqual(result.items[i].id);
-      expect(input.items[i].name).toStrictEqual(result.items[i].name);
-      expect(input.items[i].price).toStrictEqual(result.items[i].price);
-    }
+    expect(result.address).toEqual(
+      new Address({
+        street: "street",
+        number: "number",
+        complement: "complement",
+        city: "city",
+        state: "state",
+        zipCode: "zipCode",
+      })
+    );
   });
 });

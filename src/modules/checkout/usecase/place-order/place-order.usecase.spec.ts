@@ -172,7 +172,7 @@ describe("PlaceOrderUseCase unit tests", () => {
 
         describe("place an order", () => {
             const clientProps = {
-                id: "ic",
+                id: "1c",
                 name: "Client 0",
                 document: "0000",
                 email: "client@user.com",
@@ -197,15 +197,15 @@ describe("PlaceOrderUseCase unit tests", () => {
             };
 
             const mockInvoiceFacade = {
-                create: jest.fn().mockResolvedValue({ id: "1i"})
+                generateInvoice: jest.fn().mockResolvedValue({ id: "1c"})
             };
 
-            const placeORderUseCase = new PlaceOrderUseCase(
+            const placeOrderUseCase = new PlaceOrderUseCase(
                 mockClientFacade as any,
                 null,
                 null,
-                mockCheckoutRepo,
-                mockInvoiceFacade,
+                mockCheckoutRepo as any,
+                mockInvoiceFacade as any,
                 mockPaymentFacade
             );
 
@@ -226,13 +226,13 @@ describe("PlaceOrderUseCase unit tests", () => {
 
             const mockValidateProducts = jest
             //@ts-expect-error = spy on private method
-            .spyOn(placeORderUseCase, "validateProducts")
+            .spyOn(placeOrderUseCase, "validateProducts")
             //@ts-expect-error = spy on private method
             .mockResolvedValue(null);
 
             const mockGetProduct = jest
             //@ts-expect-error = spy on private method
-            .spyOn(placeORderUseCase, "getProduct")
+            .spyOn(placeOrderUseCase, "getProduct")
             //@ts-expect-error = spy on private method
             .mockImplementation((productId: keyof typeof products) => {
                 return products[productId];
@@ -253,7 +253,7 @@ describe("PlaceOrderUseCase unit tests", () => {
                     products: [{ productId: "1" }, { productId: "2" }],
                 }
 
-                let output = await placeORderUseCase.execute(input);
+                let output = await placeOrderUseCase.execute(input);
 
                 expect(output.invoiceId).toBeNull();
                 expect(output.total).toBe(70);
@@ -273,7 +273,67 @@ describe("PlaceOrderUseCase unit tests", () => {
                     amount: output.total,
                 });
 
-                expect(mockInvoiceFacade).toHaveBeenCalledTimes(0);
+                expect(mockInvoiceFacade.generateInvoice).toHaveBeenCalledTimes(0);
+            });
+
+            it("should be approved", async () => {
+                mockPaymentFacade.process = mockPaymentFacade.process.mockReturnValue({
+                  transactionId: "1t",
+                  orderId: "1o",
+                  amount: 70,
+                  status: "approved",
+                  createdAt: new Date(),
+                  updatedAt: new Date(),
+                });
+        
+                const input: PlaceOrderInputDto = {
+                  clientId: clientProps.id,
+                  products: [{ productId: "1" }, { productId: "2" }],
+                };
+        
+                let output = await placeOrderUseCase.execute(input);
+        
+                expect(output.invoiceId).toEqual("1c");
+                expect(output.total).toEqual(70);
+                expect(output.products).toStrictEqual([
+                  { productId: "1" },
+                  { productId: "2" },
+                ]);
+        
+                expect(mockClientFacade.find).toHaveBeenCalledTimes(1);
+                expect(mockClientFacade.find).toHaveBeenCalledWith({ id: "1c" });
+                expect(mockValidateProducts).toHaveBeenCalledTimes(1);
+                expect(mockGetProduct).toHaveBeenCalledTimes(2);
+                expect(mockCheckoutRepo.addOrder).toHaveBeenCalledTimes(1)
+                expect(mockPaymentFacade.process).toHaveBeenCalledTimes(1);
+                expect(mockPaymentFacade.process).toHaveBeenCalledWith({
+                  orderId: output.id,
+                  amount: output.total,
+                });
+                expect(mockInvoiceFacade.generateInvoice).toHaveBeenCalledTimes(1);
+                expect(mockInvoiceFacade.generateInvoice).toHaveBeenCalledWith({
+                    name: clientProps.name,
+                    document: clientProps.document,
+                    city: clientProps.city,
+                    zipCode: clientProps.zipCode,
+                    street: clientProps.street,
+                    state: clientProps.state,
+                    complement: clientProps.complement,
+                    number: clientProps.number,
+                    items: [
+                      {
+                        id: products["1"].id.id,
+                        name: products["1"].name,
+                        price: products["1"].salesPrice,
+                      },
+                      {
+                        id: products["2"].id.id,
+                        name: products["2"].name,
+                        price: products["2"].salesPrice,
+                      },
+                    ],
+                  });
+
             });
 
         });

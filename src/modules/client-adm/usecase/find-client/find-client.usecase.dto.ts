@@ -1,12 +1,18 @@
-export interface FindClientInputDto {
+export interface InputFindClientUseCaseDto {
     id: string;
 }
 
-export interface FindClientOutputDto {
+export interface OutputFindClientUseCaseDto {
     id: string;
     name: string;
     email: string;
-    address: string;
+    document: string;
+    street: string;
+    number: string;
+    complement: string;
+    city: string;
+    state: string;
+    zipCode: string;
     createdAt: Date;
     updatedAt: Date;
 }
