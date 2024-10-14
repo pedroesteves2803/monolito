@@ -1,10 +1,9 @@
-import Transaction from "../domain/transaction";
-import transaction from "../domain/transaction";
-import PaymentGateway from "../gateway/payment.gateway";
-import TransactionModel from "./transaction.model";
+import { Transaction } from "../domain/transaction";
+import { PaymentGateway } from "../gateway/payment.gateway";
+import { TransactionModel } from "./transaction.model";
 
-export default class TransactionRepository implements PaymentGateway {
-  async save(input: transaction): Promise<transaction> {
+export class TransactionRepository implements PaymentGateway {
+  async save(input: Transaction): Promise<Transaction> {
     await TransactionModel.create({
       id: input.id.id,
       orderId: input.orderId,

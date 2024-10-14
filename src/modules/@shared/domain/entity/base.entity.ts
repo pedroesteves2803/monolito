@@ -1,6 +1,6 @@
-import Id from "../value-object/id.value-object";
+import { Id } from "../value-object/id.value-object";
 
-export default class BaseEntity {
+export class BaseEntity {
   private _id: Id;
   private _createdAt: Date;
   private _updatedAt: Date;
@@ -11,15 +11,15 @@ export default class BaseEntity {
     this._updatedAt = updatedAt || new Date();
   }
 
-  get id(): Id {
+  get id() {
     return this._id;
   }
 
-  get createdAt(): Date {
+  get createdAt() {
     return this._createdAt;
   }
 
-  get updatedAt(): Date {
+  get updatedAt() {
     return this._updatedAt;
   }
 

@@ -1,27 +1,32 @@
-import UseCaseInterface from "../../@shared/usecase/use-case.interface";
-import ProductAdmFacadeInterface, { AddProductFacadeInputDto, CheckStockFacadeInputDto, CheckStockFacadeOutputDto } from "./product-adm.facade.interface";
-
+import { UseCaseInterface } from "../../@shared/usecase/usecase.interface";
+import {
+  AddProductFacadeInputDto,
+  CheckStockFacadeInputDto,
+  CheckStockFacadeOutputDto,
+  ProductAdmFacadeInterface,
+} from "./product-adm.facade.interface";
 
 export interface UseCaseProps {
-    addUseCase: UseCaseInterface;
-    stockUsecase: UseCaseInterface;
+  addUseCase: UseCaseInterface;
+  checkStockUseCase: UseCaseInterface;
 }
 
-export default class ProductAdmFacade implements ProductAdmFacadeInterface {
+export class ProductAdmFacade implements ProductAdmFacadeInterface {
+  private _addUseCase: UseCaseInterface;
+  private _checkStockUseCase: UseCaseInterface;
 
-    private _addUsecase: UseCaseInterface;
-    private _checkStockUsecase: UseCaseInterface;
+  constructor(useCasesProps: UseCaseProps) {
+    this._addUseCase = useCasesProps.addUseCase;
+    this._checkStockUseCase = useCasesProps.checkStockUseCase;
+  }
 
-    constructor(UseCaseProps: UseCaseProps) {
-        this._addUsecase = UseCaseProps.addUseCase;
-        this._checkStockUsecase = UseCaseProps.stockUsecase;
-    }
+  addProduct(input: AddProductFacadeInputDto): Promise<void> {
+    return this._addUseCase.execute(input);
+  }
 
-    AddProduct(input: AddProductFacadeInputDto): Promise<void> {
-        return this._addUsecase.execute(input);
-    }
-
-    checkStock(input: CheckStockFacadeInputDto): Promise<CheckStockFacadeOutputDto> {
-        return this._checkStockUsecase.execute(input);
-    }
+  checkStock(
+    input: CheckStockFacadeInputDto
+  ): Promise<CheckStockFacadeOutputDto> {
+    return this._checkStockUseCase.execute(input);
+  }
 }

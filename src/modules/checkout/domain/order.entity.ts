@@ -1,53 +1,57 @@
-import BaseEntity from "../../@shared/domain/entity/base.entity";
-import Id from "../../@shared/domain/value-object/id.value-object"
-import Client from "./client.entity";
-import Product from "./product.entity";
+import { BaseEntity } from "../../@shared/domain/entity/base.entity";
+import { Id } from "../../@shared/domain/value-object/id.value-object";
+import { Client } from "./client.entity";
+import { Product } from "./product.entity";
 
 type OrderProps = {
-    id?: Id;
-    client: Client;
-    products: Product[];
-    status?: string;
-    invoiceId?: string;
-}
+  id?: Id;
+  client: Client;
+  products: Product[];
+  status?: string;
+  invoiceId?: string;
+};
 
-export default class Order extends BaseEntity {
-    private _client: Client;
-    private _products: Product[];
-    private _status: string;
-    private _invoiceId: string;
+export class Order extends BaseEntity {
+  private _client: Client;
+  private _products: Product[];
+  private _status: string;
+  private _invoiceId: string;
 
-    constructor(props: OrderProps) {
-        super(props.id);
-        this._client = props.client;
-        this._products = props.products;
-        this._status = props.status || "pending";
-        this._invoiceId = props.invoiceId || null;
-    }
+  constructor(props: OrderProps) {
+    super(props.id);
+    this._client = props.client;
+    this._products = props.products;
+    this._status = props.status || "pending";
+    this._invoiceId = props.invoiceId || null;
+  }
 
-    approved(): void {
-        this._status = "approved";
-    }
+  approved() {
+    this._status = "approved";
+  }
 
-    get client(): Client { 
-        return this._client; 
-    }
+  setInvoiceId(invoiceId: string) {
+    this._invoiceId = invoiceId;
+  }
 
-    get products(): Product[] { 
-        return this._products; 
-    }
+  get client() {
+    return this._client;
+  }
 
-    get status(): string { 
-        return this._status; 
-    }
+  get products() {
+    return this._products;
+  }
 
-    get invoiceId() {
-        return this._invoiceId;
-      }
+  get status() {
+    return this._status;
+  }
 
-    get total(): number {
-        return this._products.reduce((total, product) => {
-            return total + product.salesPrice;
-        }, 0);
-    }
+  get invoiceId() {
+    return this._invoiceId;
+  }
+
+  get total() {
+    return this._products.reduce((total, product) => {
+      return total + product.salesPrice;
+    }, 0);
+  }
 }

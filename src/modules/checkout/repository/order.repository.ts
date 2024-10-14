@@ -1,7 +1,7 @@
-import Id from "../../@shared/domain/value-object/id.value-object";
+import { Id } from "../../@shared/domain/value-object/id.value-object";
+import { Order } from "../domain/order.entity";
 import { CheckoutGateway } from "../gateway/checkout.gateway";
 import { OrderModel } from "./order.model";
-import Order from "../domain/order.entity";
 
 function orderModelToOrder(orderModel: OrderModel): Order {
   const order = new Order({

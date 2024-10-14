@@ -1,12 +1,12 @@
 import { Sequelize } from "sequelize-typescript";
 
+import { Id } from "../../@shared/domain/value-object/id.value-object";
+import { Order } from "../domain/order.entity";
+import { Client } from "../domain/client.entity";
+import { Product } from "../domain/product.entity";
 
 import { OrderModel } from "./order.model";
 import { OrderRepository } from "./order.repository";
-import Product from "../domain/product.entity";
-import Client from "../domain/client.entity";
-import Id from "../../@shared/domain/value-object/id.value-object";
-import Order from "../domain/order.entity";
 
 const mockDate = new Date(2000, 1, 1);
 

@@ -1,10 +1,10 @@
 import { Sequelize } from "sequelize-typescript";
-import Id from "../../@shared/domain/value-object/id.value-object";
-import Transaction from "../domain/transaction";
-import TransactionModel from "./transaction.model";
-import TransactionRepostiory from "./transaction.repository";
+import { Id } from "../../@shared/domain/value-object/id.value-object";
+import { Transaction } from "../domain/transaction";
+import { TransactionModel } from "./transaction.model";
+import { TransactionRepository } from "./transaction.repository";
 
-describe("TransactionRepository test", () => {
+describe("ClientRepository test", () => {
   let sequelize: Sequelize;
 
   beforeEach(async () => {
@@ -15,7 +15,7 @@ describe("TransactionRepository test", () => {
       sync: { force: true },
     });
 
-    await sequelize.addModels([TransactionModel]);
+    sequelize.addModels([TransactionModel]);
     await sequelize.sync();
   });
 
@@ -29,14 +29,16 @@ describe("TransactionRepository test", () => {
       amount: 100,
       orderId: "1",
     });
+
     transaction.approve();
 
-    const repository = new TransactionRepostiory();
+    const repository = new TransactionRepository();
+
     const result = await repository.save(transaction);
 
-    expect(result.id.id).toBe(transaction.id.id);
-    expect(result.status).toBe("approved");
-    expect(result.amount).toBe(transaction.amount);
-    expect(result.orderId).toBe(transaction.orderId);
+    expect(result.id.id).toEqual(transaction.id.id);
+    expect(result.status).toEqual("approved");
+    expect(result.amount).toEqual(transaction.amount);
+    expect(result.orderId).toEqual(transaction.orderId);
   });
 });

@@ -1,100 +1,73 @@
 import { Sequelize } from "sequelize-typescript";
-import Id from "../../@shared/domain/value-object/id.value-object";
-import Client from "../domain/client.entity";
-import ClientRepository from "./client.repository";
-import ClientModel from "./client-model";
+import { Id } from "../../@shared/domain/value-object/id.value-object";
+import { Client } from "../domain/client.entity";
 
-describe("Client Repository tests", () => {
+import { ClientModel } from "./client.model";
+import { ClientRepository } from "./client.repository";
 
-    let sequelize: Sequelize;
+describe("ClientRepository test", () => {
+  let sequelize: Sequelize;
 
-    beforeEach(async () => {
-        sequelize = new Sequelize({
-            dialect: "sqlite",
-            storage: ":memory:",
-            logging: false,
-            sync: { force: true }
-        });
-
-        sequelize.addModels([ClientModel]);
-        await sequelize.sync();
+  beforeEach(async () => {
+    sequelize = new Sequelize({
+      dialect: "sqlite",
+      storage: ":memory:",
+      logging: false,
+      sync: { force: true },
     });
 
-    afterEach(async () => {
-        await sequelize.close();
+    sequelize.addModels([ClientModel]);
+    await sequelize.sync();
+  });
+
+  afterEach(async () => {
+    await sequelize.close();
+  });
+
+  it("should create a client", async () => {
+    const client = new Client({
+      id: new Id("1"),
+      name: "Client 1",
+      email: "client@example.com",
+      address: "Address 1",
+      document: "0000",
     });
 
-    it("should add a client", async () => {
-        const clientProps = {
-            id: new Id("1"),
-            name: "Client 1",
-            email: "client@client.com",
-            document: "0000",
-            street: "Rua Abc",
-            number: "012",
-            complement: "AP",
-            city: "Caxias do Sul",
-            state: "Rio Grande do Sul",
-            zipCode: "90333000",
-            createdAt: new Date(),
-            updatedAt: new Date()
-        }
-        const client = new Client(clientProps);
-        const clientRepository = new ClientRepository();
-        await clientRepository.add(client);
+    const repository = new ClientRepository();
+    await repository.add(client);
 
-        const clientDb = await ClientModel.findOne(
-            { where: { id: clientProps.id.id } }
-        );
+    const clientDb = await ClientModel.findOne({ where: { id: "1" } });
 
-        expect(clientDb).toBeDefined();
+    expect(clientDb).toBeDefined();
+    expect(clientDb.id).toEqual(client.id.id);
+    expect(clientDb.name).toEqual(client.name);
+    expect(clientDb.email).toEqual(client.email);
+    expect(clientDb.address).toEqual(client.address);
+    expect(clientDb.document).toEqual(client.document);
+    expect(clientDb.createdAt).toEqual(client.createdAt);
+    expect(clientDb.updatedAt).toEqual(client.updatedAt);
+  });
 
-        expect(clientDb.id).toEqual(clientProps.id.id);
-        expect(clientDb.name).toEqual(clientProps.name);
-        expect(clientDb.email).toEqual(clientProps.email);
-        expect(clientDb.document).toBe(clientProps.document);
-
-        expect(clientDb.street).toBe(clientProps.street);
-        expect(clientDb.number).toBe(clientProps.number);
-        expect(clientDb.complement).toBe(clientProps.complement);
-        expect(clientDb.city).toBe(clientProps.city);
-        expect(clientDb.state).toBe(clientProps.state);
-        expect(clientDb.zipCode).toBe(clientProps.zipCode);
-
-        expect(clientDb.createdAt).toBeDefined();
-        expect(clientDb.updatedAt).toBeDefined();
-    })
-
-    it("should find a client", async () => {
-        const clientRepository = new ClientRepository();
-        await ClientModel.create({
-            id: "1",
-            name: "Client 1",
-            email: "client@client.com",
-            document: "0000",
-            street: "Rua Abc",
-            number: "012",
-            complement: "AP",
-            city: "Caxias do Sul",
-            state: "Rio Grande do Sul",
-            zipCode: "90333000",
-            createdAt: new Date(),
-            updatedAt: new Date()
-        });
-        const client = await clientRepository.find("1");
-
-        expect(client.id.id).toEqual("1");
-        expect(client.name).toEqual("Client 1");
-        expect(client.email).toEqual("client@client.com");
-        expect(client.document).toBe("0000");
-        expect(client.street).toBe("Rua Abc");
-        expect(client.number).toBe("012");
-        expect(client.complement).toBe("AP");
-        expect(client.city).toBe("Caxias do Sul");
-        expect(client.state).toBe("Rio Grande do Sul");
-        expect(client.zipCode).toBe("90333000");
-        expect(client.createdAt).toBeDefined();
-        expect(client.updatedAt).toBeDefined();
+  it("should find a client", async () => {
+    const client = await ClientModel.create({
+      id: "1",
+      name: "Client 1",
+      email: "client@example.com",
+      address: "Address 1",
+      document: "0000",
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
 
+    const repository = new ClientRepository();
+    const result = await repository.find(client.id);
+
+    expect(result.id.id).toEqual(client.id);
+    expect(result.name).toEqual(client.name);
+    expect(result.email).toEqual(client.email);
+    expect(result.address).toEqual(client.address);
+    expect(result.document).toEqual(client.document);
+    expect(result.createdAt).toEqual(client.createdAt);
+    expect(result.updatedAt).toEqual(client.updatedAt);
+  });
 });

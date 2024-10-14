@@ -1,6 +1,6 @@
-import BaseEntity from "../../@shared/domain/entity/base.entity";
-import AggregateRoot from "../../@shared/domain/entity/aggregate-root.interface";
-import Id from "../../@shared/domain/value-object/id.value-object";
+import { BaseEntity } from "../../@shared/domain/entity/base.entity";
+import { AggregateRoot } from "../../@shared/domain/entity/aggregate-root.interface";
+import { Id } from "../../@shared/domain/value-object/id.value-object";
 
 type ProductProps = {
   id?: Id;
@@ -12,7 +12,7 @@ type ProductProps = {
   updatedAt?: Date;
 };
 
-export default class Product extends BaseEntity implements AggregateRoot {
+export class Product extends BaseEntity implements AggregateRoot {
   private _name: string;
   private _description: string;
   private _purchasePrice: number;
@@ -26,28 +26,24 @@ export default class Product extends BaseEntity implements AggregateRoot {
     this._stock = props.stock;
   }
 
-  get name(): string {
+  get name() {
     return this._name;
   }
 
-  get description(): string {
+  get description() {
     return this._description;
   }
 
-  get purchasePrice(): number {
+  get purchasePrice() {
     return this._purchasePrice;
   }
 
-  get stock(): number {
+  get stock() {
     return this._stock;
   }
 
   set name(name: string) {
     this._name = name;
-  }
-
-  set stock(stock: number) {
-    this._stock = stock;
   }
 
   set description(description: string) {
@@ -56,5 +52,9 @@ export default class Product extends BaseEntity implements AggregateRoot {
 
   set purchasePrice(purchasePrice: number) {
     this._purchasePrice = purchasePrice;
+  }
+
+  set stock(value: number) {
+    this._stock = value;
   }
 }
